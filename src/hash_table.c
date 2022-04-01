@@ -2,8 +2,10 @@
 #include <string.h>
 #include <math.h>
 #include "hash_table.h"
+#include "prime.h"
 
 static ht_item HT_DELETED_ITEM = {NULL, NULL};
+int HT_INITIAL_BASE_SIZE = 53;
 int HT_PRIME_1 = 163;
 int HT_PRIME_2 = 199;
 //  initialisation functions for ht_item
@@ -16,16 +18,28 @@ static ht_item *ht_new_item(const char *k, const char *v)
     i->value = strdup(v);
     return i;
 }
-
-// initialises a new hash table
-// TODO: change the size of the hash table
-ht_hash_table *ht_new(void)
+//  creating hash tables of a certain size
+static ht_hash_table *ht_new_sized(const int based_size)
 {
     ht_hash_table *ht = malloc(sizeof(ht_hash_table));
-    ht->size = 53;
+
+    if (ht == NULL)
+    {
+        exit(0);
+    }
+
+    ht->size = next_prime(based_size);
+
     ht->count = 0;
+
     ht->items = calloc((size_t)ht->size, sizeof(ht_item *));
     return ht;
+}
+
+// initialises a new hash table
+ht_hash_table *ht_new(void)
+{
+    return ht_new_sized(HT_INITIAL_BASE_SIZE);
 }
 
 // deletes item from hash table
